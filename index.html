@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt & Image Response Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="number"] {
+            width: 80px;
+        }
+
+        .api-key-input {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .global-prompt-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border: 2px solid #3b82f6;
+        }
+
+        .global-prompt-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .global-prompt-title::before {
+            content: "📝";
+            font-size: 24px;
+        }
+
+        .global-prompt-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .global-prompt-textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .rows-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .row-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .row-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .row-content {
+            display: grid;
+            grid-template-columns: 200px 1fr 1fr;
+            gap: 20px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .column-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .image-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 180px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: white;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .image-preview.empty {
+            color: #999;
+            font-size: 13px;
+        }
+
+        input[type="file"] {
+            font-size: 12px;
+        }
+
+        .response-text {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            min-height: 120px;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .response-text.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+        }
+
+        .error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fee;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .row-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Prompt & Image Response Tool</h1>
+       
+        <div class="controls">
+            <div class="control-group api-key-input">
+                <label for="apiKey">OpenAI API Key:</label>
+                <input type="text" id="apiKey" placeholder="sk-..." style="flex: 1;">
+            </div>
+            <div class="control-group">
+                <label for="temperature">Temperature:</label>
+                <input type="number" id="temperature" min="0" max="2" step="0.1" value="0.7">
+            </div>
+            <button class="btn-success" onclick="addRow()">+ Add Image</button>
+            <button class="btn-primary" onclick="generateResponses()">🚀 Generate All</button>
+        </div>
+
+        <div class="global-prompt-section">
+            <div class="global-prompt-title">Global Prompt (Applied to All Images)</div>
+            <textarea 
+                id="globalPrompt" 
+                class="global-prompt-textarea" 
+                placeholder="Enter your prompt here. This will be applied to all images below..."></textarea>
+        </div>
+
+        <div class="rows-container" id="rowsContainer"></div>
+    </div>
+
+    <script>
+        let rows = [];
+        let rowCounter = 0;
+
+        function addRow() {
+            rowCounter++;
+            const row = {
+                id: rowCounter,
+                context: '',
+                image: null,
+                imageData: null,
+                response: ''
+            };
+            rows.push(row);
+            renderRows();
+        }
+
+        function removeRow(id) {
+            rows = rows.filter(r => r.id !== id);
+            renderRows();
+        }
+
+        function handleImageUpload(id, file) {
+            const row = rows.find(r => r.id === id);
+            if (!row) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                row.image = file;
+                row.imageData = e.target.result;
+                renderRows();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateContext(id, value) {
+            const row = rows.find(r => r.id === id);
+            if (row) row.context = value;
+        }
+
+        function renderRows() {
+            const container = document.getElementById('rowsContainer');
+            container.innerHTML = '';
+
+            rows.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row-item';
+                rowDiv.innerHTML = `
+                    <div class="row-header">
+                        <div class="row-number">Image ${row.id}</div>
+                        <button class="btn-danger" onclick="removeRow(${row.id})">Remove</button>
+                    </div>
+                    <div class="row-content">
+                        <div class="column">
+                            <div class="column-title">Image</div>
+                            <div class="image-upload">
+                                <div class="image-preview ${row.imageData ? '' : 'empty'}" id="preview-${row.id}">
+                                    ${row.imageData ? `<img src="${row.imageData}" alt="Preview">` : 'No image selected'}
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onchange="handleImageUpload(${row.id}, this.files[0])"
+                                >
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="column-title">Context (Optional)</div>
+                            <textarea
+                                placeholder="Add specific context for this image..."
+                                onchange="updateContext(${row.id}, this.value)"
+                            >${row.context}</textarea>
+                        </div>
+                        <div class="column">
+                            <div class="column-title">Response</div>
+                            <div class="response-text" id="response-${row.id}">
+                                ${row.response || 'Click "Generate All" to get AI response'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(rowDiv);
+            });
+        }
+
+        async function generateResponses() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const globalPrompt = document.getElementById('globalPrompt').value.trim();
+
+            if (!apiKey) {
+                alert('Please enter your OpenAI API key');
+                return;
+            }
+
+            if (!globalPrompt) {
+                alert('Please enter a global prompt');
+                return;
+            }
+
+            if (rows.length === 0) {
+                alert('Please add at least one image');
+                return;
+            }
+
+            // Set all to loading state
+            rows.forEach(row => {
+                const responseEl = document.getElementById(`response-${row.id}`);
+                responseEl.className = 'response-text loading';
+                responseEl.textContent = 'Generating...';
+            });
+
+            // Create all API requests in parallel
+            const promises = rows.map(async (row) => {
+                const responseEl = document.getElementById(`response-${row.id}`);
+
+                try {
+                    if (!row.imageData) {
+                        responseEl.className = 'response-text';
+                        responseEl.innerHTML = `<div class="error">No image uploaded for this row</div>`;
+                        return;
+                    }
+
+                    const messages = [{
+                        role: 'user',
+                        content: []
+                    }];
+
+                    // Build the prompt with context if provided
+                    let fullPrompt = globalPrompt;
+                    if (row.context) {
+                        fullPrompt = `${globalPrompt}\n\nAdditional context for this image: ${row.context}`;
+                    }
+
+                    messages[0].content.push({
+                        type: 'text',
+                        text: fullPrompt
+                    });
+
+                    // Extract base64 data and ensure proper formatting
+                    const base64Data = row.imageData.split(',')[1];
+                    const mimeType = row.imageData.split(':')[1].split(';')[0];
+                    
+                    messages[0].content.push({
+                        type: 'image_url',
+                        image_url: {
+                            url: `data:${mimeType};base64,${base64Data}`
+                        }
+                    });
+
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: 'gpt-4o',
+                            messages: messages,
+                            temperature: temperature,
+                            max_tokens: 1000
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error?.message || 'API request failed');
+                    }
+
+                    const data = await response.json();
+                    row.response = data.choices[0].message.content;
+                   
+                    responseEl.className = 'response-text';
+                    responseEl.textContent = row.response;
+                } catch (error) {
+                    responseEl.className = 'response-text';
+                    responseEl.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                }
+            });
+
+            // Wait for all requests to complete
+            await Promise.all(promises);
+        }
+
+        // Initialize with one row
+        addRow();
+    </script>
+</body>
+</html>
