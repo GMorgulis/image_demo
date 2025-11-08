@@ -55,21 +55,27 @@
             color: #555;
         }
 
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], select {
             padding: 8px 12px;
             border: 2px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
             transition: border-color 0.3s;
+            background: white;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus {
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
             outline: none;
             border-color: #667eea;
         }
 
         input[type="number"] {
             width: 80px;
+        }
+
+        select {
+            cursor: pointer;
+            min-width: 150px;
         }
 
         .api-key-input {
@@ -305,6 +311,15 @@
                 <input type="text" id="apiKey" placeholder="sk-..." style="flex: 1;">
             </div>
             <div class="control-group">
+                <label for="modelSelect">Model:</label>
+                <select id="modelSelect">
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="gpt-4">GPT-4</option>
+                </select>
+            </div>
+            <div class="control-group">
                 <label for="temperature">Temperature:</label>
                 <input type="number" id="temperature" min="0" max="2" step="0.1" value="0.7">
             </div>
@@ -410,6 +425,7 @@
 
         async function generateResponses() {
             const apiKey = document.getElementById('apiKey').value.trim();
+            const model = document.getElementById('modelSelect').value;
             const temperature = parseFloat(document.getElementById('temperature').value);
             const globalPrompt = document.getElementById('globalPrompt').value.trim();
 
@@ -480,7 +496,7 @@
                             'Authorization': `Bearer ${apiKey}`
                         },
                         body: JSON.stringify({
-                            model: 'gpt-4o',
+                            model: model,
                             messages: messages,
                             temperature: temperature,
                             max_tokens: 1000
